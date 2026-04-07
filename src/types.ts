@@ -8,5 +8,6 @@ export interface BaseEvent {
   source: string;
   timestamp: string;
   notify?: NotifyTarget[];
+  notify_link?: string;
   data: Record<string, unknown>;
 }

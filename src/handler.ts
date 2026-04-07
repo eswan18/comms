@@ -22,6 +22,7 @@ const templates: Record<string, TemplateRenderer> = {
       CompetitionMemberAdded({
         recipientName: event.notify?.[0]?.name ?? "there",
         competitionName: (event.data.competition_name as string) ?? "a competition",
+        actionUrl: event.notify_link,
       }),
     ),
   }),

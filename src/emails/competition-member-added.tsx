@@ -1,18 +1,20 @@
-import { Heading, Text, Link } from "@react-email/components";
+import { Heading, Text } from "@react-email/components";
 import * as React from "react";
 import { BaseLayout } from "./base-layout.js";
 
 interface CompetitionMemberAddedProps {
   recipientName: string;
   competitionName: string;
+  actionUrl?: string;
 }
 
 export function CompetitionMemberAdded({
   recipientName,
   competitionName,
+  actionUrl,
 }: CompetitionMemberAddedProps) {
   return (
-    <BaseLayout>
+    <BaseLayout actionUrl={actionUrl} actionLabel="View Competition">
       <Heading as="h2" style={heading}>
         You've been added to a competition
       </Heading>
