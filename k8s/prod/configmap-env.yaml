@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: comms-prod-env-config
+data:
+  ENV: "prod"
+  PUBSUB_SUBSCRIPTIONS: "comms-prod-fitness-sub,comms-prod-identity-sub,comms-prod-asset-sub"

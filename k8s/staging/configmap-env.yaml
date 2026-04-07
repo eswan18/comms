@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: comms-staging-env-config
+data:
+  ENV: "staging"
+  PUBSUB_SUBSCRIPTIONS: "comms-staging-fitness-sub,comms-staging-identity-sub,comms-staging-asset-sub"

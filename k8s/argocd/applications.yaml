@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: comms-staging
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: comms=us-central1-docker.pkg.dev/ethans-services/containers/comms
+    argocd-image-updater.argoproj.io/comms.update-strategy: newest-build
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/eswan18/comms
+    targetRevision: main
+    path: k8s/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: comms-staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: comms-prod
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/eswan18/comms
+    targetRevision: main
+    path: k8s/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: comms-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

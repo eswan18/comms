@@ -1,0 +1,16 @@
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: comms-staging
+  namespace: argocd
+spec:
+  namespace: argocd
+  writeBackConfig:
+    method: argocd
+  applicationRefs:
+    - namePattern: comms-staging
+      images:
+        - alias: comms
+          imageName: us-central1-docker.pkg.dev/ethans-services/containers/comms
+          commonUpdateSettings:
+            updateStrategy: newest-build

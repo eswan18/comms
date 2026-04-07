@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comms
+spec:
+  replicas: 1
+  template:
+    spec:
+      serviceAccountName: comms-staging-ksa
+      containers:
+        - name: comms
+          envFrom:
+            - configMapRef:
+                name: comms-config
+            - configMapRef:
+                name: comms-staging-env-config
+          env:
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: comms-staging-secrets
+                  key: RESEND_API_KEY
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: comms-staging-secrets
