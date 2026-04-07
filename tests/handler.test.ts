@@ -24,7 +24,7 @@ describe("handleEvent", () => {
       event_type: "test.notification",
       source: "manual",
       timestamp: "2026-02-07T10:00:00Z",
-      recipients: [{ email: "test@example.com", name: "Test User" }],
+      notify: [{ email: "test@example.com", name: "Test User" }],
       data: { message: "Hello" },
     };
 
@@ -39,12 +39,12 @@ describe("handleEvent", () => {
     );
   });
 
-  it("sends to multiple recipients", async () => {
+  it("sends to multiple notify targets", async () => {
     const event: BaseEvent = {
       event_type: "test.notification",
       source: "manual",
       timestamp: "2026-02-07T10:00:00Z",
-      recipients: [
+      notify: [
         { email: "a@example.com", name: "A" },
         { email: "b@example.com", name: "B" },
       ],
@@ -73,7 +73,7 @@ describe("handleEvent", () => {
       event_type: "competition.member_added",
       source: "forecasting",
       timestamp: "2026-04-07T10:00:00Z",
-      recipients: [{ email: "newmember@example.com", name: "Jane" }],
+      notify: [{ email: "newmember@example.com", name: "Jane" }],
       data: { competition_name: "Q2 Predictions", competition_id: 42 },
     };
 
@@ -93,7 +93,7 @@ describe("handleEvent", () => {
       event_type: "unknown.event",
       source: "manual",
       timestamp: "2026-02-07T10:00:00Z",
-      recipients: [{ email: "test@example.com", name: "Test" }],
+      notify: [{ email: "test@example.com", name: "Test" }],
       data: {},
     };
 

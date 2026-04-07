@@ -11,7 +11,7 @@ const templates: Record<string, TemplateRenderer> = {
     subject: "Test Notification",
     html: render(
       TestNotification({
-        recipientName: event.recipients[0]?.name ?? "there",
+        recipientName: event.notify?.[0]?.name ?? "there",
         message: (event.data.message as string) ?? "",
       }),
     ),
@@ -20,7 +20,7 @@ const templates: Record<string, TemplateRenderer> = {
     subject: `You've been added to ${(event.data.competition_name as string) ?? "a competition"}`,
     html: render(
       CompetitionMemberAdded({
-        recipientName: event.recipients[0]?.name ?? "there",
+        recipientName: event.notify?.[0]?.name ?? "there",
         competitionName: (event.data.competition_name as string) ?? "a competition",
       }),
     ),
@@ -40,10 +40,15 @@ export async function handleEvent(
   const { subject, html: htmlPromise } = renderer(event);
   const html = await htmlPromise;
 
-  for (const recipient of event.recipients) {
+  if (!event.notify?.length) {
+    console.warn(`Event ${event.event_type} has no notify targets, skipping`);
+    return;
+  }
+
+  for (const target of event.notify) {
     console.log(
-      `Sending "${subject}" to ${recipient.email} for event ${event.event_type}`,
+      `Sending "${subject}" to ${target.email} for event ${event.event_type}`,
     );
-    await sendEmail(emailFrom, recipient.email, subject, html);
+    await sendEmail(emailFrom, target.email, subject, html);
   }
 }
