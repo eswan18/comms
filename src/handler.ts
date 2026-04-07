@@ -1,6 +1,7 @@
 import { render } from "@react-email/render";
 import { sendEmail } from "./mailer.js";
 import { TestNotification } from "./emails/test-notification.js";
+import { CompetitionMemberAdded } from "./emails/competition-member-added.js";
 import type { BaseEvent } from "./types.js";
 
 type TemplateRenderer = (event: BaseEvent) => { subject: string; html: Promise<string> };
@@ -12,6 +13,15 @@ const templates: Record<string, TemplateRenderer> = {
       TestNotification({
         recipientName: event.recipients[0]?.name ?? "there",
         message: (event.data.message as string) ?? "",
+      }),
+    ),
+  }),
+  "competition.member_added": (event) => ({
+    subject: `You've been added to ${(event.data.competition_name as string) ?? "a competition"}`,
+    html: render(
+      CompetitionMemberAdded({
+        recipientName: event.recipients[0]?.name ?? "there",
+        competitionName: (event.data.competition_name as string) ?? "a competition",
       }),
     ),
   }),
