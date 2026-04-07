@@ -20,8 +20,7 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /build/dist ./dist
 
-RUN adduser -D -u 1000 appuser
-USER appuser
+USER node
 
 EXPOSE 8080
 
