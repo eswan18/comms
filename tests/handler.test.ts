@@ -88,6 +88,40 @@ describe("handleEvent", () => {
     );
   });
 
+  it("sends email for prop.created event to all members", async () => {
+    const event: BaseEvent = {
+      event_type: "prop.created",
+      source: "forecasting",
+      timestamp: "2026-04-07T10:00:00Z",
+      notify: [
+        { email: "alice@example.com", name: "Alice" },
+        { email: "bob@example.com", name: "Bob" },
+      ],
+      notify_link: "https://forecasting.example.com/competitions/9",
+      data: {
+        competition_name: "Q2 Predictions",
+        competition_id: 9,
+        prop_text: "Will inflation exceed 3% by June?",
+      },
+    };
+
+    await handleEvent(event, "noreply@example.com");
+
+    expect(mockSendEmail).toHaveBeenCalledTimes(2);
+    expect(mockSendEmail).toHaveBeenCalledWith(
+      "noreply@example.com",
+      "alice@example.com",
+      "New prop in Q2 Predictions",
+      expect.any(String),
+    );
+    expect(mockSendEmail).toHaveBeenCalledWith(
+      "noreply@example.com",
+      "bob@example.com",
+      "New prop in Q2 Predictions",
+      expect.any(String),
+    );
+  });
+
   it("skips unknown event types without error", async () => {
     const event: BaseEvent = {
       event_type: "unknown.event",
