@@ -6,9 +6,6 @@ metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: comms=us-central1-docker.pkg.dev/ethans-services/containers/comms
     argocd-image-updater.argoproj.io/comms.update-strategy: newest-build
-    # Exclude the mutable `latest` tag so image-updater pins the immutable
-    # SHA tag instead of `:latest` (which it otherwise ties on by build time).
-    argocd-image-updater.argoproj.io/comms.allow-tags: "regexp:^[a-f0-9]{7,}$"
 spec:
   project: default
   source:
