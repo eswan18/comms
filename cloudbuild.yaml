@@ -7,8 +7,6 @@ steps:
       - 'build'
       - '-t'
       - 'us-central1-docker.pkg.dev/ethans-services/containers/comms:$SHORT_SHA'
-      - '-t'
-      - 'us-central1-docker.pkg.dev/ethans-services/containers/comms:latest'
       - '.'
 
   - name: 'gcr.io/cloud-builders/docker'
@@ -19,4 +17,3 @@ steps:
 
 images:
   - 'us-central1-docker.pkg.dev/ethans-services/containers/comms:$SHORT_SHA'
-  - 'us-central1-docker.pkg.dev/ethans-services/containers/comms:latest'
