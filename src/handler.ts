@@ -4,6 +4,7 @@ import { TestNotification } from "./emails/test-notification.js";
 import { CompetitionMemberAdded } from "./emails/competition-member-added.js";
 import { PropCreated } from "./emails/prop-created.js";
 import type { BaseEvent } from "./types.js";
+import type { EmailFromResolver } from "./email-from.js";
 
 type TemplateRenderer = (
   event: BaseEvent,
@@ -45,7 +46,7 @@ const templates: Record<string, TemplateRenderer> = {
 
 export async function handleEvent(
   event: BaseEvent,
-  emailFrom: string,
+  resolveFrom: EmailFromResolver,
 ): Promise<void> {
   const renderer = templates[event.event_type];
   if (!renderer) {
@@ -57,6 +58,8 @@ export async function handleEvent(
     console.warn(`Event ${event.event_type} has no notify targets, skipping`);
     return;
   }
+
+  const emailFrom = resolveFrom(event.source);
 
   for (const target of event.notify) {
     const { subject, html: htmlPromise } = renderer(event, target.name ?? "there");

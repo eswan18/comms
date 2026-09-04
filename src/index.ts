@@ -2,6 +2,7 @@ import { loadConfig } from "./config.js";
 import { startHealthServer } from "./health.js";
 import { initMailer } from "./mailer.js";
 import { startSubscriber } from "./subscriber.js";
+import { createEmailFromResolver } from "./email-from.js";
 
 const config = loadConfig();
 
@@ -11,7 +12,7 @@ const healthServer = startHealthServer(config.port);
 const closeSubscriber = startSubscriber(
   config.gcpProjectId,
   config.pubsubSubscriptions,
-  config.emailFrom,
+  createEmailFromResolver(config.emailFrom, config.emailFromOverrides),
 );
 
 console.log(`Comms service started (env=${config.env})`);

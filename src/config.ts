@@ -1,8 +1,11 @@
+import { parseEmailFromOverrides } from "./email-from.js";
+
 export interface Config {
   gcpProjectId: string;
   pubsubSubscriptions: string[];
   resendApiKey: string;
   emailFrom: string;
+  emailFromOverrides: Record<string, string>;
   port: number;
   env: string;
 }
@@ -23,6 +26,9 @@ export function loadConfig(): Config {
     pubsubSubscriptions: subscriptions.split(",").map((s) => s.trim()),
     resendApiKey: required("RESEND_API_KEY"),
     emailFrom: required("EMAIL_FROM"),
+    emailFromOverrides: parseEmailFromOverrides(
+      process.env["EMAIL_FROM_OVERRIDES"],
+    ),
     port: parseInt(process.env["PORT"] ?? "8080", 10),
     env: process.env["ENV"] ?? "development",
   };
