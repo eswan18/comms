@@ -52,7 +52,7 @@ describe("startSubscriber", () => {
   });
 
   it("processes and acks messages", async () => {
-    startSubscriber("proj", ["sub-a"], "from@example.com");
+    startSubscriber("proj", ["sub-a"], () => "from@example.com");
     const message = {
       id: "m1",
       data: Buffer.from(JSON.stringify({ event_type: "test.notification" })),
@@ -67,7 +67,7 @@ describe("startSubscriber", () => {
   });
 
   it("re-attaches after a terminal error, with exponential backoff", () => {
-    startSubscriber("proj", ["sub-a"], "from@example.com");
+    startSubscriber("proj", ["sub-a"], () => "from@example.com");
     expect(attachedCount("sub-a")).toBe(1);
 
     latest("sub-a").emit("error", new Error("NOT_FOUND"));
@@ -88,7 +88,7 @@ describe("startSubscriber", () => {
   });
 
   it("a broken subscription does not disturb its siblings", () => {
-    startSubscriber("proj", ["sub-a", "sub-b"], "from@example.com");
+    startSubscriber("proj", ["sub-a", "sub-b"], () => "from@example.com");
     latest("sub-a").emit("error", new Error("NOT_FOUND"));
     vi.advanceTimersByTime(60_000);
     expect(attachedCount("sub-a")).toBe(2);
@@ -97,7 +97,7 @@ describe("startSubscriber", () => {
   });
 
   it("resets the backoff after a stable period", () => {
-    startSubscriber("proj", ["sub-a"], "from@example.com");
+    startSubscriber("proj", ["sub-a"], () => "from@example.com");
 
     latest("sub-a").emit("error", new Error("NOT_FOUND"));
     vi.advanceTimersByTime(5_000); // re-attach #2 (attempts now 1)
@@ -111,7 +111,7 @@ describe("startSubscriber", () => {
   });
 
   it("close() cancels pending re-attaches and closes live subscriptions", async () => {
-    const close = startSubscriber("proj", ["sub-a", "sub-b"], "from@example.com");
+    const close = startSubscriber("proj", ["sub-a", "sub-b"], () => "from@example.com");
 
     latest("sub-a").emit("error", new Error("NOT_FOUND")); // pending re-attach
     const liveB = latest("sub-b");

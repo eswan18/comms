@@ -28,7 +28,7 @@ describe("handleEvent", () => {
       data: { message: "Hello" },
     };
 
-    await handleEvent(event, "noreply@example.com");
+    await handleEvent(event, () => "noreply@example.com");
 
     expect(mockSendEmail).toHaveBeenCalledOnce();
     expect(mockSendEmail).toHaveBeenCalledWith(
@@ -51,7 +51,7 @@ describe("handleEvent", () => {
       data: { message: "Hello" },
     };
 
-    await handleEvent(event, "noreply@example.com");
+    await handleEvent(event, () => "noreply@example.com");
 
     expect(mockSendEmail).toHaveBeenCalledTimes(2);
     expect(mockSendEmail).toHaveBeenCalledWith(
@@ -77,7 +77,7 @@ describe("handleEvent", () => {
       data: { competition_name: "Q2 Predictions", competition_id: 42 },
     };
 
-    await handleEvent(event, "noreply@example.com");
+    await handleEvent(event, () => "noreply@example.com");
 
     expect(mockSendEmail).toHaveBeenCalledOnce();
     expect(mockSendEmail).toHaveBeenCalledWith(
@@ -105,7 +105,7 @@ describe("handleEvent", () => {
       },
     };
 
-    await handleEvent(event, "noreply@example.com");
+    await handleEvent(event, () => "noreply@example.com");
 
     expect(mockSendEmail).toHaveBeenCalledTimes(2);
     expect(mockSendEmail).toHaveBeenCalledWith(
@@ -131,8 +131,56 @@ describe("handleEvent", () => {
       data: {},
     };
 
-    await handleEvent(event, "noreply@example.com");
+    await handleEvent(event, () => "noreply@example.com");
 
     expect(mockSendEmail).not.toHaveBeenCalled();
+  });
+
+  it("selects the From address from the event source", async () => {
+    const resolveFrom = (source: string) =>
+      source === "forecasting"
+        ? "Haruspex <noreply@mail.haruspex.fyi>"
+        : "noreply@mail.identity.ethanswan.com";
+
+    const event: BaseEvent = {
+      event_type: "prop.created",
+      source: "forecasting",
+      timestamp: "2026-02-07T10:00:00Z",
+      notify: [{ email: "alice@example.com", name: "Alice" }],
+      data: { prop_text: "Will it rain?", competition_name: "Q2 Predictions" },
+    };
+
+    await handleEvent(event, resolveFrom);
+
+    expect(mockSendEmail).toHaveBeenCalledWith(
+      "Haruspex <noreply@mail.haruspex.fyi>",
+      "alice@example.com",
+      expect.any(String),
+      expect.any(String),
+    );
+  });
+
+  it("falls back to the default From for a source with no override", async () => {
+    const resolveFrom = (source: string) =>
+      source === "forecasting"
+        ? "Haruspex <noreply@mail.haruspex.fyi>"
+        : "noreply@mail.identity.ethanswan.com";
+
+    const event: BaseEvent = {
+      event_type: "test.notification",
+      source: "identity",
+      timestamp: "2026-02-07T10:00:00Z",
+      notify: [{ email: "alice@example.com", name: "Alice" }],
+      data: { message: "Hello" },
+    };
+
+    await handleEvent(event, resolveFrom);
+
+    expect(mockSendEmail).toHaveBeenCalledWith(
+      "noreply@mail.identity.ethanswan.com",
+      "alice@example.com",
+      expect.any(String),
+      expect.any(String),
+    );
   });
 });

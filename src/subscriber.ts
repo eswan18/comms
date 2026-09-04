@@ -1,6 +1,7 @@
 import { PubSub, type Message, type Subscription } from "@google-cloud/pubsub";
 import { handleEvent } from "./handler.js";
 import type { BaseEvent } from "./types.js";
+import type { EmailFromResolver } from "./email-from.js";
 
 // The client only retries transient stream failures internally; a terminal
 // error (subscription missing, deleted, or recreated) kills the stream for
@@ -21,7 +22,7 @@ type SubscriptionState = {
 export function startSubscriber(
   projectId: string,
   subscriptionNames: string[],
-  emailFrom: string,
+  resolveFrom: EmailFromResolver,
 ): () => Promise<void> {
   const pubsub = new PubSub({ projectId });
   const states = new Map<string, SubscriptionState>();
@@ -46,7 +47,7 @@ export function startSubscriber(
     const onMessage = async (message: Message) => {
       try {
         const event: BaseEvent = JSON.parse(message.data.toString("utf-8"));
-        await handleEvent(event, emailFrom);
+        await handleEvent(event, resolveFrom);
         message.ack();
       } catch (err) {
         console.error(`Error processing message ${message.id}:`, err);
