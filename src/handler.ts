@@ -63,12 +63,20 @@ export async function handleEvent(
 
   const emailFrom = resolveFrom(event.source);
 
+  // Logged on both sides of the send: the first line gives a failure the
+  // recipient it died on, the second carries the Resend id, which is the only
+  // way to find the message in Resend afterwards.
+  const trace = event.correlation_id ? ` correlation_id=${event.correlation_id}` : "";
+
   for (const target of event.notify) {
     const { subject, html: htmlPromise } = renderer(event, target.name ?? "there");
     const html = await htmlPromise;
     console.log(
-      `Sending "${subject}" to ${target.email} for event ${event.event_type}`,
+      `Sending "${subject}" to ${target.email} for event ${event.event_type}${trace}`,
     );
-    await sendEmail(emailFrom, target.email, subject, html);
+    const resendId = await sendEmail(emailFrom, target.email, subject, html);
+    console.log(
+      `Sent to ${target.email} resend_id=${resendId ?? "none"}${trace}`,
+    );
   }
 }

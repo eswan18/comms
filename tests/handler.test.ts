@@ -3,7 +3,7 @@ import { handleEvent } from "../src/handler.js";
 import type { BaseEvent } from "../src/types.js";
 
 vi.mock("../src/mailer.js", () => ({
-  sendEmail: vi.fn().mockResolvedValue(undefined),
+  sendEmail: vi.fn().mockResolvedValue("re_default"),
 }));
 
 vi.mock("@react-email/render", () => ({
@@ -180,5 +180,65 @@ describe("handleEvent", () => {
     await handleEvent(event, () => "noreply@example.com");
 
     expect(mockSendEmail.mock.calls[0]![2]).toBe("A message from Haruspex");
+  });
+
+  it("logs the Resend id, so a send can be found in Resend afterwards", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    mockSendEmail.mockResolvedValue("re_xyz789");
+
+    const event: BaseEvent = {
+      event_type: "test.notification",
+      source: "manual",
+      timestamp: "2026-09-04T10:00:00Z",
+      notify: [{ email: "a@example.com", name: "A" }],
+      data: { message: "Hello" },
+    };
+
+    await handleEvent(event, () => "noreply@example.com");
+
+    const lines = log.mock.calls.map((c) => String(c[0]));
+    expect(lines.some((l) => l.includes("resend_id=re_xyz789"))).toBe(true);
+    log.mockRestore();
+  });
+
+  it("carries the publisher's correlation id into both log lines", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    mockSendEmail.mockResolvedValue("re_1");
+
+    const event: BaseEvent = {
+      event_type: "test.notification",
+      source: "forecasting",
+      timestamp: "2026-09-04T10:00:00Z",
+      correlation_id: "c-123",
+      notify: [{ email: "a@example.com", name: "A" }],
+      data: { message: "Hello" },
+    };
+
+    await handleEvent(event, () => "noreply@example.com");
+
+    const traced = log.mock.calls
+      .map((c) => String(c[0]))
+      .filter((l) => l.includes("correlation_id=c-123"));
+    expect(traced).toHaveLength(2);
+    log.mockRestore();
+  });
+
+  it("omits the correlation field entirely when the publisher sent none", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    mockSendEmail.mockResolvedValue("re_1");
+
+    const event: BaseEvent = {
+      event_type: "test.notification",
+      source: "manual",
+      timestamp: "2026-09-04T10:00:00Z",
+      notify: [{ email: "a@example.com", name: "A" }],
+      data: { message: "Hello" },
+    };
+
+    await handleEvent(event, () => "noreply@example.com");
+
+    const lines = log.mock.calls.map((c) => String(c[0]));
+    expect(lines.some((l) => l.includes("correlation_id"))).toBe(false);
+    log.mockRestore();
   });
 });
