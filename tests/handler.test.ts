@@ -149,4 +149,36 @@ describe("handleEvent", () => {
       expect.any(String),
     );
   });
+
+  it("uses the admin's own subject and body for admin.manual_email", async () => {
+    const event: BaseEvent = {
+      event_type: "admin.manual_email",
+      source: "forecasting",
+      timestamp: "2026-09-04T10:00:00Z",
+      notify: [{ email: "alice@example.com", name: "Alice" }],
+      data: { subject: "About your account", body: "Please get in touch." },
+    };
+
+    await handleEvent(event, () => "noreply@example.com");
+
+    expect(mockSendEmail).toHaveBeenCalledOnce();
+    const [, to, subject, html] = mockSendEmail.mock.calls[0]!;
+    expect(to).toBe("alice@example.com");
+    expect(subject).toBe("About your account");
+    expect(html).toEqual(expect.any(String));
+  });
+
+  it("falls back to a real subject if a malformed event has none", async () => {
+    const event: BaseEvent = {
+      event_type: "admin.manual_email",
+      source: "forecasting",
+      timestamp: "2026-09-04T10:00:00Z",
+      notify: [{ email: "alice@example.com", name: "Alice" }],
+      data: { subject: "   ", body: "Body still present." },
+    };
+
+    await handleEvent(event, () => "noreply@example.com");
+
+    expect(mockSendEmail.mock.calls[0]![2]).toBe("A message from Haruspex");
+  });
 });
