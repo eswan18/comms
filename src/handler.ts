@@ -2,7 +2,6 @@ import { render } from "@react-email/render";
 import { sendEmail } from "./mailer.js";
 import { TestNotification } from "./emails/test-notification.js";
 import { CompetitionMemberAdded } from "./emails/competition-member-added.js";
-import { PropCreated } from "./emails/prop-created.js";
 import type { BaseEvent } from "./types.js";
 import type { EmailFromResolver } from "./email-from.js";
 
@@ -26,17 +25,6 @@ const templates: Record<string, TemplateRenderer> = {
     html: render(
       CompetitionMemberAdded({
         recipientName,
-        competitionName: (event.data.competition_name as string) ?? "a competition",
-        actionUrl: event.notify_link,
-      }),
-    ),
-  }),
-  "prop.created": (event, recipientName) => ({
-    subject: `New prop in ${(event.data.competition_name as string) ?? "a competition"}`,
-    html: render(
-      PropCreated({
-        recipientName,
-        propText: (event.data.prop_text as string) ?? "",
         competitionName: (event.data.competition_name as string) ?? "a competition",
         actionUrl: event.notify_link,
       }),
