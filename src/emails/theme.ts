@@ -52,3 +52,6 @@ export const fonts = {
  * start to suffer, so this is the wide end of safe, not an arbitrary bump.
  */
 export const SHEET_WIDTH = 640;
+
+/** Where the masthead and the footer both point. */
+export const SITE_URL = "https://haruspex.fyi";
