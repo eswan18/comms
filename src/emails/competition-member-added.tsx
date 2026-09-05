@@ -1,6 +1,5 @@
-import { Heading, Text } from "@react-email/components";
 import * as React from "react";
-import { BaseLayout } from "./base-layout.js";
+import { BaseLayout, SheetHeading, SheetText } from "./base-layout.js";
 
 interface CompetitionMemberAddedProps {
   recipientName: string;
@@ -14,26 +13,13 @@ export function CompetitionMemberAdded({
   actionUrl,
 }: CompetitionMemberAddedProps) {
   return (
-    <BaseLayout actionUrl={actionUrl} actionLabel="View Competition">
-      <Heading as="h2" style={heading}>
-        You've been added to a competition
-      </Heading>
-      <Text style={text}>Hi {recipientName},</Text>
-      <Text style={text}>
-        You've been added to <strong>{competitionName}</strong> on Forecasting.
-        Sign in to start making predictions.
-      </Text>
+    <BaseLayout actionUrl={actionUrl} actionLabel="View competition">
+      <SheetHeading>You&rsquo;ve been added to a competition</SheetHeading>
+      <SheetText>Hi {recipientName},</SheetText>
+      <SheetText>
+        You&rsquo;ve been added to <strong>{competitionName}</strong> on
+        Haruspex. Sign in to start making predictions.
+      </SheetText>
     </BaseLayout>
   );
 }
-
-const heading = {
-  fontSize: "24px",
-  fontWeight: "bold" as const,
-  marginBottom: "16px",
-};
-
-const text = {
-  fontSize: "16px",
-  lineHeight: "26px",
-};
