@@ -1,6 +1,5 @@
-import { Text } from "@react-email/components";
 import * as React from "react";
-import { BaseLayout } from "./base-layout.js";
+import { BaseLayout, SheetText } from "./base-layout.js";
 
 interface ManualMessageProps {
   recipientName: string;
@@ -20,16 +19,11 @@ interface ManualMessageProps {
 export function ManualMessage({ recipientName, body }: ManualMessageProps) {
   return (
     <BaseLayout>
-      <Text style={text}>Hi {recipientName},</Text>
+      <SheetText>Hi {recipientName},</SheetText>
       {/* pre-wrap rather than paragraph-splitting: it keeps blank lines and
           single breaks exactly as they were typed, with no parsing to get
           wrong. */}
-      <Text style={{ ...text, whiteSpace: "pre-wrap" }}>{body}</Text>
+      <SheetText style={{ whiteSpace: "pre-wrap" }}>{body}</SheetText>
     </BaseLayout>
   );
 }
-
-const text = {
-  fontSize: "16px",
-  lineHeight: "26px",
-};
