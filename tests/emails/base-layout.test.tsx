@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@react-email/render";
 import { CompetitionMemberAdded } from "../../src/emails/competition-member-added.js";
-import { riso, SHEET_WIDTH } from "../../src/emails/theme.js";
+import { riso, SHEET_WIDTH, SITE_URL } from "../../src/emails/theme.js";
 
 const html = () =>
   render(
@@ -63,5 +63,38 @@ describe("copy", () => {
     const out = await html();
     expect(out).not.toContain("Forecasting");
     expect(out).toContain("Haruspex");
+  });
+});
+
+describe("links", () => {
+  it("points the masthead wordmark and the footer url at the site", async () => {
+    const out = await html();
+    const hrefs = [...out.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+    expect(hrefs.filter((h) => h === SITE_URL)).toHaveLength(2);
+  });
+
+  it("paints every link from the riso palette, never a default blue", async () => {
+    const out = await html();
+    const anchors = [...out.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
+    expect(anchors).toHaveLength(3); // masthead, action button, footer url
+
+    // Asserting the presence of `color:` would prove nothing: React Email's
+    // Link always emits one, and defaults it to its own blue. The assertion
+    // has to name the value, or it passes just as happily on #067df7 -- the
+    // one colour this palette has no room for.
+    const allowed = [riso.light.muted, riso.light.paper];
+    for (const a of anchors) {
+      const colour = a.match(/style="color:(#[0-9a-f]{6})/)?.[1];
+      expect(allowed).toContain(colour);
+    }
+    expect(out).not.toContain("#067df7");
+  });
+
+  it("flips both links with the edition", async () => {
+    const out = await html();
+    // hx-footer-link needs its own hook: the footer <p> rule does not reach
+    // an <a> inside it once the anchor carries its own inline colour.
+    expect(out).toContain("hx-footer-link");
+    expect(out).toMatch(/\.hx-kicker[^}]*\{[^}]*!important/);
   });
 });

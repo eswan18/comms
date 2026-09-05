@@ -10,7 +10,7 @@ import {
   Link,
 } from "@react-email/components";
 import * as React from "react";
-import { riso, fonts, SHEET_WIDTH } from "./theme.js";
+import { riso, fonts, SHEET_WIDTH, SITE_URL } from "./theme.js";
 
 /**
  * The shared riso sheet every haruspex email is printed on.
@@ -35,7 +35,7 @@ const darkCss = `
   .hx-body, .hx-sheet { background-color: ${riso.dark.paper} !important; }
   .hx-heading, .hx-text { color: ${riso.dark.ink} !important; }
   .hx-masthead { border-bottom-color: ${riso.dark.ink} !important; }
-  .hx-kicker, .hx-footer { color: ${riso.dark.muted} !important; }
+  .hx-kicker, .hx-footer, .hx-footer-link { color: ${riso.dark.muted} !important; }
   .hx-hairline { border-top-color: ${riso.dark.rule} !important; }
   .hx-action {
     background-color: ${riso.dark.ink} !important;
@@ -64,9 +64,9 @@ export function BaseLayout({ children, actionUrl, actionLabel }: BaseLayoutProps
               opens a section and a hairline separates two items; the same two
               weights carry the same two meanings here. */}
           <Section className="hx-masthead" style={masthead}>
-            <Text className="hx-kicker" style={kicker}>
+            <Link className="hx-kicker" href={SITE_URL} style={kicker}>
               Haruspex
-            </Text>
+            </Link>
           </Section>
 
           {children}
@@ -79,7 +79,10 @@ export function BaseLayout({ children, actionUrl, actionLabel }: BaseLayoutProps
 
           <Hr className="hx-hairline" style={hairline} />
           <Text className="hx-footer" style={footer}>
-            Sent by Haruspex &middot; haruspex.fyi
+            Sent by Haruspex &middot;{" "}
+            <Link className="hx-footer-link" href={SITE_URL} style={footerLink}>
+              haruspex.fyi
+            </Link>
           </Text>
         </Container>
       </Body>
@@ -143,7 +146,9 @@ const kicker = {
   letterSpacing: "0.16em",
   textTransform: "uppercase" as const,
   color: riso.light.muted,
+  textDecoration: "none" as const,
   margin: "0",
+  display: "inline-block" as const,
 };
 
 const heading = {
@@ -186,6 +191,21 @@ const hairline = {
   borderLeft: "none",
   borderRight: "none",
   margin: "32px 0 12px",
+};
+
+/**
+ * Both links carry an explicit colour rather than inheriting. Without one, a
+ * client paints them its own link blue -- and several will autolink a bare
+ * "haruspex.fyi" anyway, so the choice is between styling the link ourselves
+ * and letting Gmail style it for us.
+ *
+ * The masthead reuses the kicker style and stays undecorated: it is a
+ * wordmark, and underlining it reads as a mistake. The footer keeps its
+ * underline, where it is doing the ordinary job of marking a URL.
+ */
+const footerLink = {
+  color: riso.light.muted,
+  textDecoration: "underline" as const,
 };
 
 const footer = {
