@@ -6,4 +6,4 @@ data:
   ENV: "prod"
   PUBSUB_SUBSCRIPTIONS: "comms-prod-footstrike-sub,comms-prod-identity-sub,comms-prod-asset-sub,comms-prod-haruspex-sub"
   EMAIL_FROM_OVERRIDES: |
-    {"forecasting":"Haruspex <noreply@mail.haruspex.fyi>","haruspex":"Haruspex <noreply@mail.haruspex.fyi>"}
+    {"haruspex":"Haruspex <noreply@mail.haruspex.fyi>"}
