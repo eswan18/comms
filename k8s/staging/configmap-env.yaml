@@ -4,7 +4,7 @@ metadata:
   name: comms-staging-env-config
 data:
   ENV: "staging"
-  PUBSUB_SUBSCRIPTIONS: "comms-staging-footstrike-sub,comms-staging-identity-sub,comms-staging-asset-sub,comms-staging-forecasting-sub"
+  PUBSUB_SUBSCRIPTIONS: "comms-staging-footstrike-sub,comms-staging-identity-sub,comms-staging-asset-sub,comms-staging-haruspex-sub"
   EMAIL_FROM: "staging.noreply@mail.identity.ethanswan.com"
   EMAIL_FROM_OVERRIDES: |
-    {"forecasting":"Haruspex <staging.noreply@mail.haruspex.fyi>"}
+    {"forecasting":"Haruspex <staging.noreply@mail.haruspex.fyi>","haruspex":"Haruspex <staging.noreply@mail.haruspex.fyi>"}
