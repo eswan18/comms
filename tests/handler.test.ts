@@ -182,6 +182,47 @@ describe("handleEvent", () => {
     expect(mockSendEmail.mock.calls[0]![2]).toBe("A message from Haruspex");
   });
 
+  it("sends email for competition.prop_added event", async () => {
+    const event: BaseEvent = {
+      event_type: "competition.prop_added",
+      source: "haruspex",
+      timestamp: "2026-09-10T10:00:00Z",
+      notify: [{ email: "member@example.com", name: "Jane" }],
+      notify_link: "https://haruspex.fyi/competitions/3/props/42",
+      data: {
+        competition_id: 3,
+        competition_name: "Office Pool",
+        prop_id: 42,
+        prop_text: "It snows on the first of December.",
+        forecasts_due_date: "2026-11-30T17:00:00.000Z",
+      },
+    };
+
+    await handleEvent(event, () => "noreply@example.com");
+
+    expect(mockSendEmail).toHaveBeenCalledOnce();
+    expect(mockSendEmail).toHaveBeenCalledWith(
+      "noreply@example.com",
+      "member@example.com",
+      "New prop in Office Pool",
+      expect.any(String),
+    );
+  });
+
+  it("still sends competition.prop_added if the competition name is missing", async () => {
+    const event: BaseEvent = {
+      event_type: "competition.prop_added",
+      source: "haruspex",
+      timestamp: "2026-09-10T10:00:00Z",
+      notify: [{ email: "member@example.com", name: "Jane" }],
+      data: { prop_text: "It snows on the first of December." },
+    };
+
+    await handleEvent(event, () => "noreply@example.com");
+
+    expect(mockSendEmail.mock.calls[0]![2]).toBe("New prop in your competition");
+  });
+
   it("logs the Resend id, so a send can be found in Resend afterwards", async () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
     mockSendEmail.mockResolvedValue("re_xyz789");
