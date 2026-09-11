@@ -2,6 +2,7 @@ import { render } from "@react-email/render";
 import { sendEmail } from "./mailer.js";
 import { TestNotification } from "./emails/test-notification.js";
 import { CompetitionMemberAdded } from "./emails/competition-member-added.js";
+import { CompetitionPropAdded } from "./emails/competition-prop-added.js";
 import { ManualMessage } from "./emails/manual-message.js";
 import type { BaseEvent } from "./types.js";
 import type { EmailFromResolver } from "./email-from.js";
@@ -44,6 +45,24 @@ const templates: Record<string, TemplateRenderer> = {
       }),
     ),
   }),
+  // haruspex publishes one of these per recipient, so a failed send here
+  // retries only its own reader.
+  "competition.prop_added": (event, recipientName) => {
+    const competitionName =
+      (event.data.competition_name as string) ?? "your competition";
+    return {
+      subject: `New prop in ${competitionName}`,
+      html: render(
+        CompetitionPropAdded({
+          recipientName,
+          competitionName,
+          propText: (event.data.prop_text as string) ?? "",
+          forecastsDueDate: (event.data.forecasts_due_date as string) ?? null,
+          actionUrl: event.notify_link,
+        }),
+      ),
+    };
+  },
 };
 
 export async function handleEvent(
