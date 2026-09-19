@@ -33,7 +33,13 @@ describe("the riso sheet", () => {
     const out = await html();
     // The media query is useless if React Email drops className on its
     // components -- these two have to travel together.
-    for (const hook of ["hx-body", "hx-sheet", "hx-heading", "hx-text", "hx-action"]) {
+    for (const hook of [
+      "hx-body",
+      "hx-sheet",
+      "hx-heading",
+      "hx-text",
+      "hx-action",
+    ]) {
       expect(out).toContain(hook);
     }
   });
@@ -63,6 +69,41 @@ describe("copy", () => {
     const out = await html();
     expect(out).not.toContain("Forecasting");
     expect(out).toContain("Haruspex");
+  });
+});
+
+describe("the way out", () => {
+  const withManage = () =>
+    render(
+      CompetitionMemberAdded({
+        recipientName: "Ethan",
+        competitionName: "Q4 Predictions",
+        actionUrl: "https://haruspex.fyi/competitions/3",
+        manageUrl: "https://haruspex.fyi/account",
+      }),
+    );
+
+  it("prints a way to the settings when the publisher gives one", async () => {
+    const out = await withManage();
+    expect(out).toContain('href="https://haruspex.fyi/account"');
+    expect(out).toContain("Manage notifications");
+  });
+
+  it("prints nothing of the sort on mail that cannot be turned off", async () => {
+    // An admin's hand-written message carries no manage_link, because there
+    // is no setting behind it to offer.
+    const out = await html();
+    expect(out).not.toContain("Manage notifications");
+  });
+
+  it("paints it from the palette, like every other link", async () => {
+    const out = await withManage();
+    const anchors = [...out.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
+    expect(anchors).toHaveLength(4); // masthead, action, footer url, manage
+    for (const a of anchors) {
+      const colour = a.match(/style="color:(#[0-9a-f]{6})/)?.[1];
+      expect([riso.light.muted, riso.light.paper]).toContain(colour);
+    }
   });
 });
 

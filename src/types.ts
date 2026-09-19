@@ -15,5 +15,10 @@ export interface BaseEvent {
   correlation_id?: string;
   notify?: NotifyTarget[];
   notify_link?: string;
+  /**
+   * Where this reader turns this mail off. Sent only for mail that can be
+   * turned off; the publisher owns that decision, since it owns the settings.
+   */
+  manage_link?: string;
   data: Record<string, unknown>;
 }

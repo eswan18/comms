@@ -8,6 +8,8 @@ interface CompetitionPropAddedProps {
   /** ISO timestamp, or null when the prop has no forecast deadline. */
   forecastsDueDate: string | null;
   actionUrl?: string;
+  /** Where the reader turns this mail off; see BaseLayout. */
+  manageUrl?: string;
 }
 
 /**
@@ -41,10 +43,15 @@ export function CompetitionPropAdded({
   propText,
   forecastsDueDate,
   actionUrl,
+  manageUrl,
 }: CompetitionPropAddedProps) {
   const deadline = formatDeadline(forecastsDueDate);
   return (
-    <BaseLayout actionUrl={actionUrl} actionLabel="Make your forecast">
+    <BaseLayout
+      actionUrl={actionUrl}
+      actionLabel="Make your forecast"
+      manageUrl={manageUrl}
+    >
       <SheetHeading>A new prop in {competitionName}</SheetHeading>
       <SheetText>Hi {recipientName},</SheetText>
       <SheetText>

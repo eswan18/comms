@@ -48,9 +48,20 @@ interface BaseLayoutProps {
   children: React.ReactNode;
   actionUrl?: string;
   actionLabel?: string;
+  /**
+   * Where this reader turns this mail off. Present only on mail that can be
+   * turned off: the publisher decides, and mail with no setting behind it
+   * (an admin writing to one person) sends none, so the footer offers none.
+   */
+  manageUrl?: string;
 }
 
-export function BaseLayout({ children, actionUrl, actionLabel }: BaseLayoutProps) {
+export function BaseLayout({
+  children,
+  actionUrl,
+  actionLabel,
+  manageUrl,
+}: BaseLayoutProps) {
   return (
     <Html lang="en">
       <Head>
@@ -83,6 +94,19 @@ export function BaseLayout({ children, actionUrl, actionLabel }: BaseLayoutProps
             <Link className="hx-footer-link" href={SITE_URL} style={footerLink}>
               haruspex.fyi
             </Link>
+            {manageUrl && (
+              <>
+                {" "}
+                &middot;{" "}
+                <Link
+                  className="hx-footer-link"
+                  href={manageUrl}
+                  style={footerLink}
+                >
+                  Manage notifications
+                </Link>
+              </>
+            )}
           </Text>
         </Container>
       </Body>

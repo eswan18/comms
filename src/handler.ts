@@ -27,7 +27,8 @@ const templates: Record<string, TemplateRenderer> = {
   // fallbacks here only keep a malformed event from sending a blank-subject
   // email.
   "admin.manual_email": (event, recipientName) => ({
-    subject: (event.data.subject as string)?.trim() || "A message from Haruspex",
+    subject:
+      (event.data.subject as string)?.trim() || "A message from Haruspex",
     html: render(
       ManualMessage({
         recipientName,
@@ -40,8 +41,10 @@ const templates: Record<string, TemplateRenderer> = {
     html: render(
       CompetitionMemberAdded({
         recipientName,
-        competitionName: (event.data.competition_name as string) ?? "a competition",
+        competitionName:
+          (event.data.competition_name as string) ?? "a competition",
         actionUrl: event.notify_link,
+        manageUrl: event.manage_link,
       }),
     ),
   }),
@@ -59,6 +62,7 @@ const templates: Record<string, TemplateRenderer> = {
           propText: (event.data.prop_text as string) ?? "",
           forecastsDueDate: (event.data.forecasts_due_date as string) ?? null,
           actionUrl: event.notify_link,
+          manageUrl: event.manage_link,
         }),
       ),
     };
@@ -71,7 +75,9 @@ export async function handleEvent(
 ): Promise<void> {
   const renderer = templates[event.event_type];
   if (!renderer) {
-    console.warn(`Unknown event type: ${event.event_type}, acking to avoid retry`);
+    console.warn(
+      `Unknown event type: ${event.event_type}, acking to avoid retry`,
+    );
     return;
   }
 
@@ -85,10 +91,15 @@ export async function handleEvent(
   // Logged on both sides of the send: the first line gives a failure the
   // recipient it died on, the second carries the Resend id, which is the only
   // way to find the message in Resend afterwards.
-  const trace = event.correlation_id ? ` correlation_id=${event.correlation_id}` : "";
+  const trace = event.correlation_id
+    ? ` correlation_id=${event.correlation_id}`
+    : "";
 
   for (const target of event.notify) {
-    const { subject, html: htmlPromise } = renderer(event, target.name ?? "there");
+    const { subject, html: htmlPromise } = renderer(
+      event,
+      target.name ?? "there",
+    );
     const html = await htmlPromise;
     console.log(
       `Sending "${subject}" to ${target.email} for event ${event.event_type}${trace}`,

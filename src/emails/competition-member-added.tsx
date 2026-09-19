@@ -5,15 +5,22 @@ interface CompetitionMemberAddedProps {
   recipientName: string;
   competitionName: string;
   actionUrl?: string;
+  /** Where the reader turns this mail off; see BaseLayout. */
+  manageUrl?: string;
 }
 
 export function CompetitionMemberAdded({
   recipientName,
   competitionName,
   actionUrl,
+  manageUrl,
 }: CompetitionMemberAddedProps) {
   return (
-    <BaseLayout actionUrl={actionUrl} actionLabel="View competition">
+    <BaseLayout
+      actionUrl={actionUrl}
+      actionLabel="View competition"
+      manageUrl={manageUrl}
+    >
       <SheetHeading>You&rsquo;ve been added to a competition</SheetHeading>
       <SheetText>Hi {recipientName},</SheetText>
       <SheetText>
