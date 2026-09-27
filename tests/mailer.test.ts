@@ -29,6 +29,32 @@ describe("sendEmail", () => {
     });
   });
 
+  it("passes custom headers through, which is how one-click unsubscribe works", async () => {
+    send.mockResolvedValue({ data: { id: "re_abc123" }, error: null });
+
+    await sendEmail("from@x.com", "to@x.com", "Subject", "<p>hi</p>", {
+      "List-Unsubscribe": "<https://haruspex.fyi/api/unsubscribe?t=tok>",
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    });
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        headers: {
+          "List-Unsubscribe": "<https://haruspex.fyi/api/unsubscribe?t=tok>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      }),
+    );
+  });
+
+  it("sends no headers key at all when there are none", async () => {
+    send.mockResolvedValue({ data: { id: "re_abc123" }, error: null });
+
+    await sendEmail("from@x.com", "to@x.com", "Subject", "<p>hi</p>");
+
+    expect(send.mock.calls[0]![0]).not.toHaveProperty("headers");
+  });
+
   it("returns null when Resend reports success without a body", async () => {
     send.mockResolvedValue({ data: null, error: null });
 

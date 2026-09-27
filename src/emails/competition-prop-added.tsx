@@ -10,6 +10,8 @@ interface CompetitionPropAddedProps {
   actionUrl?: string;
   /** Where the reader turns this mail off; see BaseLayout. */
   manageUrl?: string;
+  /** This reader's own unsubscribe link, the asking one; see BaseLayout. */
+  unsubscribeUrl?: string;
 }
 
 /**
@@ -44,6 +46,7 @@ export function CompetitionPropAdded({
   forecastsDueDate,
   actionUrl,
   manageUrl,
+  unsubscribeUrl,
 }: CompetitionPropAddedProps) {
   const deadline = formatDeadline(forecastsDueDate);
   return (
@@ -51,6 +54,7 @@ export function CompetitionPropAdded({
       actionUrl={actionUrl}
       actionLabel="Make your forecast"
       manageUrl={manageUrl}
+      unsubscribeUrl={unsubscribeUrl}
     >
       <SheetHeading>A new prop in {competitionName}</SheetHeading>
       <SheetText>Hi {recipientName},</SheetText>

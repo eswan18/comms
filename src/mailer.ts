@@ -18,6 +18,11 @@ export async function sendEmail(
   to: string,
   subject: string,
   html: string,
+  /**
+   * Extra headers, for the List-Unsubscribe pair. Omitted entirely when empty:
+   * Resend is given no `headers` key rather than an empty object.
+   */
+  headers?: Record<string, string>,
 ): Promise<string | null> {
   if (!resendClient) {
     throw new Error("Mailer not initialized. Call initMailer() first.");
@@ -27,6 +32,7 @@ export async function sendEmail(
     to,
     subject,
     html,
+    ...(headers && Object.keys(headers).length > 0 ? { headers } : {}),
   });
   if (error) {
     throw new Error(`Failed to send email to ${to}: ${error.message}`);

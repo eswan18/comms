@@ -54,6 +54,12 @@ interface BaseLayoutProps {
    * (an admin writing to one person) sends none, so the footer offers none.
    */
   manageUrl?: string;
+  /**
+   * This reader's own one-notification unsubscribe link — the page that ASKS.
+   * Never the POST url: a link in a message gets followed by scanners and
+   * prefetchers, and a link that acted would opt readers out by robot.
+   */
+  unsubscribeUrl?: string;
 }
 
 export function BaseLayout({
@@ -61,6 +67,7 @@ export function BaseLayout({
   actionUrl,
   actionLabel,
   manageUrl,
+  unsubscribeUrl,
 }: BaseLayoutProps) {
   return (
     <Html lang="en">
@@ -94,6 +101,19 @@ export function BaseLayout({
             <Link className="hx-footer-link" href={SITE_URL} style={footerLink}>
               haruspex.fyi
             </Link>
+            {unsubscribeUrl && (
+              <>
+                {" "}
+                &middot;{" "}
+                <Link
+                  className="hx-footer-link"
+                  href={unsubscribeUrl}
+                  style={footerLink}
+                >
+                  Unsubscribe
+                </Link>
+              </>
+            )}
             {manageUrl && (
               <>
                 {" "}

@@ -4,20 +4,42 @@ import { TestNotification } from "./emails/test-notification.js";
 import { CompetitionMemberAdded } from "./emails/competition-member-added.js";
 import { CompetitionPropAdded } from "./emails/competition-prop-added.js";
 import { ManualMessage } from "./emails/manual-message.js";
-import type { BaseEvent } from "./types.js";
+import type { BaseEvent, NotifyTarget } from "./types.js";
 import type { EmailFromResolver } from "./email-from.js";
 
 type TemplateRenderer = (
   event: BaseEvent,
-  recipientName: string,
+  target: NotifyTarget,
 ) => { subject: string; html: Promise<string> };
 
+/** The reader's name, or a greeting that works without one. */
+function nameOf(target: NotifyTarget): string {
+  return target.name ?? "there";
+}
+
+/**
+ * What tells a mail client it may show its own unsubscribe button.
+ *
+ * Both headers or neither: RFC 8058 needs the POST url and the fixed body, and
+ * Gmail shows nothing without the pair. Absent for mail with no link, which is
+ * mail that cannot be turned off.
+ */
+function unsubscribeHeaders(
+  target: NotifyTarget,
+): Record<string, string> | undefined {
+  if (!target.unsubscribe_post_url) return undefined;
+  return {
+    "List-Unsubscribe": `<${target.unsubscribe_post_url}>`,
+    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+  };
+}
+
 const templates: Record<string, TemplateRenderer> = {
-  "test.notification": (event, recipientName) => ({
+  "test.notification": (event, target) => ({
     subject: "Test Notification",
     html: render(
       TestNotification({
-        recipientName,
+        recipientName: nameOf(target),
         message: (event.data.message as string) ?? "",
       }),
     ),
@@ -26,43 +48,45 @@ const templates: Record<string, TemplateRenderer> = {
   // theirs. haruspex rejects an empty subject or body before publishing; the
   // fallbacks here only keep a malformed event from sending a blank-subject
   // email.
-  "admin.manual_email": (event, recipientName) => ({
+  "admin.manual_email": (event, target) => ({
     subject:
       (event.data.subject as string)?.trim() || "A message from Haruspex",
     html: render(
       ManualMessage({
-        recipientName,
+        recipientName: nameOf(target),
         body: (event.data.body as string) ?? "",
       }),
     ),
   }),
-  "competition.member_added": (event, recipientName) => ({
+  "competition.member_added": (event, target) => ({
     subject: `You've been added to ${(event.data.competition_name as string) ?? "a competition"}`,
     html: render(
       CompetitionMemberAdded({
-        recipientName,
+        recipientName: nameOf(target),
         competitionName:
           (event.data.competition_name as string) ?? "a competition",
         actionUrl: event.notify_link,
         manageUrl: event.manage_link,
+        unsubscribeUrl: target.unsubscribe_url,
       }),
     ),
   }),
   // haruspex publishes one of these per recipient, so a failed send here
   // retries only its own reader.
-  "competition.prop_added": (event, recipientName) => {
+  "competition.prop_added": (event, target) => {
     const competitionName =
       (event.data.competition_name as string) ?? "your competition";
     return {
       subject: `New prop in ${competitionName}`,
       html: render(
         CompetitionPropAdded({
-          recipientName,
+          recipientName: nameOf(target),
           competitionName,
           propText: (event.data.prop_text as string) ?? "",
           forecastsDueDate: (event.data.forecasts_due_date as string) ?? null,
           actionUrl: event.notify_link,
           manageUrl: event.manage_link,
+          unsubscribeUrl: target.unsubscribe_url,
         }),
       ),
     };
@@ -96,15 +120,18 @@ export async function handleEvent(
     : "";
 
   for (const target of event.notify) {
-    const { subject, html: htmlPromise } = renderer(
-      event,
-      target.name ?? "there",
-    );
+    const { subject, html: htmlPromise } = renderer(event, target);
     const html = await htmlPromise;
     console.log(
       `Sending "${subject}" to ${target.email} for event ${event.event_type}${trace}`,
     );
-    const resendId = await sendEmail(emailFrom, target.email, subject, html);
+    const resendId = await sendEmail(
+      emailFrom,
+      target.email,
+      subject,
+      html,
+      unsubscribeHeaders(target),
+    );
     console.log(
       `Sent to ${target.email} resend_id=${resendId ?? "none"}${trace}`,
     );

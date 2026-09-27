@@ -36,6 +36,7 @@ describe("handleEvent", () => {
       "test@example.com",
       "Test Notification",
       expect.any(String),
+      undefined,
     );
   });
 
@@ -59,12 +60,14 @@ describe("handleEvent", () => {
       "a@example.com",
       "Test Notification",
       expect.any(String),
+      undefined,
     );
     expect(mockSendEmail).toHaveBeenCalledWith(
       "noreply@example.com",
       "b@example.com",
       "Test Notification",
       expect.any(String),
+      undefined,
     );
   });
 
@@ -85,6 +88,7 @@ describe("handleEvent", () => {
       "newmember@example.com",
       "You've been added to Q2 Predictions",
       expect.any(String),
+      undefined,
     );
   });
 
@@ -123,6 +127,7 @@ describe("handleEvent", () => {
       "alice@example.com",
       expect.any(String),
       expect.any(String),
+      undefined,
     );
   });
 
@@ -147,6 +152,7 @@ describe("handleEvent", () => {
       "alice@example.com",
       expect.any(String),
       expect.any(String),
+      undefined,
     );
   });
 
@@ -206,6 +212,7 @@ describe("handleEvent", () => {
       "member@example.com",
       "New prop in Office Pool",
       expect.any(String),
+      undefined,
     );
   });
 

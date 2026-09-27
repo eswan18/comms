@@ -7,6 +7,8 @@ interface CompetitionMemberAddedProps {
   actionUrl?: string;
   /** Where the reader turns this mail off; see BaseLayout. */
   manageUrl?: string;
+  /** This reader's own unsubscribe link, the asking one; see BaseLayout. */
+  unsubscribeUrl?: string;
 }
 
 export function CompetitionMemberAdded({
@@ -14,12 +16,14 @@ export function CompetitionMemberAdded({
   competitionName,
   actionUrl,
   manageUrl,
+  unsubscribeUrl,
 }: CompetitionMemberAddedProps) {
   return (
     <BaseLayout
       actionUrl={actionUrl}
       actionLabel="View competition"
       manageUrl={manageUrl}
+      unsubscribeUrl={unsubscribeUrl}
     >
       <SheetHeading>You&rsquo;ve been added to a competition</SheetHeading>
       <SheetText>Hi {recipientName},</SheetText>

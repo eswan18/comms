@@ -85,3 +85,67 @@ describe("the manage link reaches the sent mail", () => {
     );
   });
 });
+
+describe("the unsubscribe headers", () => {
+  const target = {
+    email: "member@example.com",
+    name: "Jane",
+    unsubscribe_url: "https://haruspex.fyi/unsubscribe?t=tok",
+    unsubscribe_post_url: "https://haruspex.fyi/api/unsubscribe?t=tok",
+  };
+
+  const propAdded = (notify: unknown[]): BaseEvent => ({
+    event_type: "competition.prop_added",
+    source: "haruspex",
+    timestamp: "2026-09-27T10:00:00Z",
+    notify: notify as BaseEvent["notify"],
+    data: { competition_name: "Office Pool", prop_text: "It snows." },
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("asks the mail client for its own unsubscribe button", async () => {
+    await handleEvent(propAdded([target]), () => "noreply@example.com");
+
+    // RFC 8058: the POST url in List-Unsubscribe, and the fixed body that says
+    // one click is enough. Without both, Gmail shows no native button.
+    expect(mockSendEmail.mock.calls[0]![4]).toEqual({
+      "List-Unsubscribe": "<https://haruspex.fyi/api/unsubscribe?t=tok>",
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    });
+  });
+
+  it("prints the asking link in the footer, not the acting one", async () => {
+    await handleEvent(propAdded([target]), () => "noreply@example.com");
+
+    const html = mockSendEmail.mock.calls[0]![3];
+    // A visible link gets followed by scanners, so the footer must point at
+    // the page that only asks.
+    expect(html).toContain('href="https://haruspex.fyi/unsubscribe?t=tok"');
+    expect(html).not.toContain('href="https://haruspex.fyi/api/unsubscribe?t=tok"');
+  });
+
+  it("sends no headers for a reader with no unsubscribe link", async () => {
+    await handleEvent(
+      propAdded([{ email: "member@example.com", name: "Jane" }]),
+      () => "noreply@example.com",
+    );
+
+    expect(mockSendEmail.mock.calls[0]![4]).toBeUndefined();
+  });
+
+  it("gives each reader their own link when an event somehow names two", async () => {
+    await handleEvent(
+      propAdded([
+        target,
+        { ...target, email: "other@example.com", unsubscribe_post_url: "https://haruspex.fyi/api/unsubscribe?t=tok2" },
+      ]),
+      () => "noreply@example.com",
+    );
+
+    expect(mockSendEmail.mock.calls[0]![4]!["List-Unsubscribe"]).toContain("t=tok");
+    expect(mockSendEmail.mock.calls[1]![4]!["List-Unsubscribe"]).toContain("t=tok2");
+  });
+});
