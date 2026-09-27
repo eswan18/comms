@@ -1,6 +1,17 @@
 export interface NotifyTarget {
   email: string;
   name: string;
+  /**
+   * Where this reader turns this notification off, if it can be turned off.
+   * Per recipient, because each link names its own reader.
+   *
+   * `unsubscribe_url` only asks, and is what the footer prints — a visible
+   * link gets followed by scanners and prefetchers.
+   * `unsubscribe_post_url` acts, and is what the mail client's own button
+   * POSTs to (RFC 8058). Never print the acting one.
+   */
+  unsubscribe_url?: string;
+  unsubscribe_post_url?: string;
 }
 
 export interface BaseEvent {
