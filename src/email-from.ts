@@ -20,6 +20,7 @@ export function parseEmailFromOverrides(
   } catch (err) {
     throw new Error(
       `${ENV_VAR} is not valid JSON: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
     );
   }
 
