@@ -20,13 +20,15 @@ function latest(name: string): FakeSubscription {
 }
 
 vi.mock("@google-cloud/pubsub", () => ({
-  PubSub: vi.fn().mockImplementation(() => ({
-    subscription: (name: string) => {
-      const sub = new FakeSubscription();
-      instances.set(name, [...(instances.get(name) ?? []), sub]);
-      return sub;
-    },
-  })),
+  PubSub: vi.fn().mockImplementation(function () {
+    return {
+      subscription: (name: string) => {
+        const sub = new FakeSubscription();
+        instances.set(name, [...(instances.get(name) ?? []), sub]);
+        return sub;
+      },
+    };
+  }),
 }));
 
 vi.mock("../src/handler.js", () => ({
