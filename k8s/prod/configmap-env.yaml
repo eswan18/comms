@@ -4,6 +4,6 @@ metadata:
   name: comms-prod-env-config
 data:
   ENV: "prod"
-  PUBSUB_SUBSCRIPTIONS: "comms-prod-footstrike-sub,comms-prod-identity-sub,comms-prod-asset-sub,comms-prod-haruspex-sub"
+  PUBSUB_SUBSCRIPTIONS: "comms-prod-footstrike-sub,comms-prod-identity-sub,comms-prod-sensibility-sub,comms-prod-haruspex-sub"
   EMAIL_FROM_OVERRIDES: |
     {"haruspex":"Haruspex <noreply@mail.haruspex.fyi>"}
