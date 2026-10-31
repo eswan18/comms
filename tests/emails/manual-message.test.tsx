@@ -3,38 +3,24 @@ import { render } from "@react-email/render";
 import { ManualMessage } from "../../src/emails/manual-message.js";
 
 describe("ManualMessage template", () => {
-  it("renders the recipient name and body", async () => {
+  it("renders the body as markdown", async () => {
     const html = await render(
-      ManualMessage({
-        recipientName: "Ethan",
-        body: "Your account has been upgraded.",
-      }),
+      ManualMessage({ body: "Hi Alice,\n\nYour account is **upgraded**." }),
     );
 
-    expect(html).toContain("Ethan");
-    expect(html).toContain("Your account has been upgraded.");
+    expect(html).toContain("Hi Alice,");
+    expect(html).toContain("<strong>upgraded</strong>");
   });
 
-  it("preserves line breaks rather than collapsing the body into one run", async () => {
-    const html = await render(
-      ManualMessage({
-        recipientName: "Ethan",
-        body: "First line.\n\nSecond paragraph.",
-      }),
-    );
+  it("adds no greeting of its own", async () => {
+    const html = await render(ManualMessage({ body: "Just the body." }));
 
-    // pre-wrap is what keeps the author's paragraph breaks visible; without it
-    // an admin's carefully formatted note arrives as a single blob.
-    expect(html).toMatch(/pre-wrap/);
-    expect(html).toContain("Second paragraph.");
+    expect(html).not.toMatch(/\bHi\b/);
   });
 
   it("escapes HTML in the body so an admin cannot inject markup", async () => {
     const html = await render(
-      ManualMessage({
-        recipientName: "Ethan",
-        body: '<script>alert("x")</script>',
-      }),
+      ManualMessage({ body: '<script>alert("x")</script>' }),
     );
 
     expect(html).not.toContain("<script>");

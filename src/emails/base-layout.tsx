@@ -37,6 +37,8 @@ const darkCss = `
   .hx-masthead { border-bottom-color: ${riso.dark.ink} !important; }
   .hx-kicker, .hx-footer, .hx-footer-link { color: ${riso.dark.muted} !important; }
   .hx-hairline { border-top-color: ${riso.dark.rule} !important; }
+  .hx-link { color: ${riso.dark.ink} !important; }
+  .hx-quote { border-left-color: ${riso.dark.rule} !important; }
   .hx-action {
     background-color: ${riso.dark.ink} !important;
     color: ${riso.dark.paper} !important;
