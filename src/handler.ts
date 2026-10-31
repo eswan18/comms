@@ -4,6 +4,7 @@ import { TestNotification } from "./emails/test-notification.js";
 import { CompetitionMemberAdded } from "./emails/competition-member-added.js";
 import { CompetitionPropAdded } from "./emails/competition-prop-added.js";
 import { ManualMessage } from "./emails/manual-message.js";
+import { Announcement } from "./emails/announcement.js";
 import type { BaseEvent, NotifyTarget } from "./types.js";
 import type { EmailFromResolver } from "./email-from.js";
 
@@ -55,6 +56,23 @@ const templates: Record<string, TemplateRenderer> = {
       ManualMessage({
         recipientName: nameOf(target),
         body: (event.data.body as string) ?? "",
+      }),
+    ),
+  }),
+  // One admin message to every active haruspex user, published one event per
+  // reader. The button is optional; `notify_link` and `button_label` arrive
+  // together or not at all.
+  "admin.announcement": (event, target) => ({
+    subject:
+      (event.data.subject as string)?.trim() || "A message from Haruspex",
+    html: render(
+      Announcement({
+        recipientName: nameOf(target),
+        body: (event.data.body as string) ?? "",
+        actionUrl: event.notify_link,
+        actionLabel: (event.data.button_label as string) || undefined,
+        manageUrl: event.manage_link,
+        unsubscribeUrl: target.unsubscribe_url,
       }),
     ),
   }),

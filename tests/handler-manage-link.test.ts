@@ -84,6 +84,35 @@ describe("the manage link reaches the sent mail", () => {
       "Manage notifications",
     );
   });
+
+  it("prints it, the unsubscribe link and the button on an announcement", async () => {
+    await handleEvent(
+      event({
+        event_type: "admin.announcement",
+        notify: [
+          {
+            email: "member@example.com",
+            name: "Jane",
+            unsubscribe_url: "https://haruspex.fyi/unsubscribe?token=abc",
+          },
+        ],
+        notify_link: "https://haruspex.fyi/props/suggest",
+        data: {
+          subject: "Ideas for next year",
+          body: "Send us your props.",
+          button_label: "Suggest a prop",
+        },
+      }),
+      () => "noreply@example.com",
+    );
+
+    const [, , subject, html] = mockSendEmail.mock.calls[0]!;
+    expect(subject).toBe("Ideas for next year");
+    expect(html).toContain('href="https://haruspex.fyi/account"');
+    expect(html).toContain("https://haruspex.fyi/unsubscribe?token=abc");
+    expect(html).toContain('href="https://haruspex.fyi/props/suggest"');
+    expect(html).toContain("Suggest a prop");
+  });
 });
 
 describe("the unsubscribe headers", () => {
